@@ -21,7 +21,7 @@ app.use("/api/prescriptions", prescriptionRoutes);
 app.use('/api/auth', authRoutes);
 
 const allowedOrigins = [
-    process.env.CLIENT_URL,  // Allow frontend
+    "https://med-shield.vercel.app",  // Allow frontend
     "http://localhost:3000"  // Allow local development
 ];
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Use the deployed backend URL from Render
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000/api"; 
+const API_BASE_URL = "https://medshield-backend.onrender.com/api" || "http://localhost:5000/api"; 
 
 export const signup = async (userData) => {
     return await axios.post(`${API_BASE_URL}/signup`, userData);
