@@ -1,9 +1,13 @@
-import React, { useState } from "react";
-import { Container, Typography, Button, TextField } from "@mui/material";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { Container, Typography, Button } from "@mui/material";
+import axios from "axios";
 
 const PrescriptionUploadPage = () => {
   const [file, setFile] = useState(null);
   const [hashId, setHashId] = useState("");
+  const [uploadStatus, setUploadStatus] = useState(""); // To show success/error messages
+  const { user } = useContext(AuthContext); // Get user data from AuthContext
 
   const generateHashId = () => {
     return "PRESC-" + Math.random().toString(36).substring(2, 12);
@@ -15,10 +19,28 @@ const PrescriptionUploadPage = () => {
     setHashId(generateHashId());
   };
 
-  const handleUpload = () => {
-    if (file) {
-      alert(`Prescription uploaded successfully! Hash ID: ${hashId}`);
-      // TODO: Send file to backend
+  const handleUpload = async () => {
+    if (!file) {
+      setUploadStatus("Please select a file to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("prescription", file);
+    formData.append("hashId", hashId);
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/prescriptions/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user.token}`, // Pass token for authentication
+        },
+      });
+
+      setUploadStatus(`Upload successful! Prescription ID: ${response.data.prescriptionId}`);
+    } catch (error) {
+      setUploadStatus("Upload failed. Please try again.");
+      console.error("Error uploading prescription:", error);
     }
   };
 
@@ -41,6 +63,12 @@ const PrescriptionUploadPage = () => {
             Upload Prescription
           </Button>
         </div>
+      )}
+
+      {uploadStatus && (
+        <Typography variant="h6" color={uploadStatus.includes("failed") ? "red" : "green"} style={{ marginTop: "20px" }}>
+          {uploadStatus}
+        </Typography>
       )}
     </Container>
   );
