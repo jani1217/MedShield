@@ -5,24 +5,10 @@ const cors = require("cors");
 
 const app = express();
 
-// Middleware (MOVE THIS UP)
-app.use(express.json());
-app.use(cors());
-
-// Import Models and Routes
-const User = require('./models/User');
-const Prescription = require('./models/Prescription');
-const Medicine = require('./models/Medicine');
-const authRoutes = require('./routes/auth');
-const prescriptionRoutes = require("./routes/prescription");
-app.use("/api/prescriptions", prescriptionRoutes);
-
-// Use Routes
-app.use('/api/auth', authRoutes);
-
+// ✅ Fix CORS Issue
 const allowedOrigins = [
-    "https://med-shield.vercel.app",  // Allow frontend
-    "http://localhost:3000"  // Allow local development
+    "https://med-shield.vercel.app",  // Deployed Frontend
+    "http://localhost:3000"  // Local Development
 ];
 
 app.use(cors({
@@ -30,17 +16,26 @@ app.use(cors({
     credentials: true
 }));
 
-// Database Connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("MongoDB Connected"))
-    .catch(err => console.error(err));
+app.use(express.json());
 
-// Root Route
+// Import Routes
+const authRoutes = require("./routes/auth");
+const prescriptionRoutes = require("./routes/prescription");
+
+// ✅ Ensure correct API paths
+app.use("/api/auth", authRoutes);
+app.use("/api/prescriptions", prescriptionRoutes);
+
+// ✅ Database Connection
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("✅ MongoDB Connected"))
+    .catch(err => console.error("❌ MongoDB Connection Error:", err));
+
+// ✅ Test Root Route
 app.get("/", (req, res) => {
-    res.send("MedShield Backend Running 🚀");
+    res.send("✅ MedShield Backend Running 🚀");
 });
 
-// Start Server
+// ✅ Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

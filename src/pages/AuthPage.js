@@ -11,35 +11,37 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");  // New state for role selection
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "https://medshield-backend.onrender.com/api";
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    const endpoint = isSignup ? "/api/auth/signup" : "/api/auth/login";
-
+    const endpoint = isSignup ? "/auth/signup" : "/auth/login";
+  
     try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, { // ✅ Use API_BASE_URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
           password,
-          ...(isSignup && { name, role }),  // Include role for signup
+          ...(isSignup && { name, role }),
         }),
       });
-
+  
       const data = await response.json();
-
+  
       if (!response.ok) {
         throw new Error(data.msg || data.errors?.[0]?.msg || "An error occurred.");
       }
-
-      login({ email, token: data.token, role: data.role });  // Store role in context
+  
+      login({ email, token: data.token, role: data.role });
       navigate("/");
     } catch (error) {
       console.error("Error:", error);
       alert(error.message);
     }
   };
+  
 
   return (
     <Box sx={{ width: "300px", margin: "auto", mt: 5, textAlign: "center" }}>
