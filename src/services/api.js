@@ -4,11 +4,11 @@ import axios from "axios";
 const API_BASE_URL = "https://medshield-backend.onrender.com/api" || "http://localhost:5000/api"; 
 
 export const signup = async (userData) => {
-    return await axios.post(`${API_BASE_URL}/signup`, userData);
+    return await axios.post(`${API_BASE_URL}/auth/signup`, userData);
 };
 
 export const login = async (userData) => {
-    return await axios.post(`${API_BASE_URL}/login`, userData);
+    return await axios.post(`${API_BASE_URL}/auth/login`, userData);
 };
 
 export const fetchPrescriptions = async (token) => {
