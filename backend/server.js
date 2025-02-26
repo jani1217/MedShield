@@ -20,6 +20,16 @@ app.use("/api/prescriptions", prescriptionRoutes);
 // Use Routes
 app.use('/api/auth', authRoutes);
 
+const allowedOrigins = [
+    process.env.CLIENT_URL,  // Allow frontend
+    "http://localhost:3000"  // Allow local development
+];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
+
 // Database Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log("MongoDB Connected"))
@@ -33,12 +43,4 @@ app.get("/", (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-const cors = require("cors");
-app.use(
-  cors({
-    origin: "https://med-shield.vercel.app/",
-    credentials: true, // Allow cookies & authentication headers
-  })
-);
 
