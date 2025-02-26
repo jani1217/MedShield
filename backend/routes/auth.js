@@ -10,7 +10,7 @@ router.post('/signup', [
     body('name', 'Name is required').notEmpty(),
     body('email', 'Valid email is required').isEmail(),
     body('password', 'Password must be at least 6 characters').isLength({ min: 6 }),
-    body('role', 'Role is required').notEmpty() // ✅ Ensure role is provided
+    body('role', 'Role is required').isIn(["user", "doctor", "pharmacist", "route-user", "manufacturer", "admin"])
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -76,6 +76,5 @@ router.post('/login', [
         res.status(500).json({ msg: 'Server Error' });
     }
 });
-
 
 module.exports = router;
