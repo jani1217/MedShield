@@ -8,12 +8,8 @@ const Navbar = () => {
   const location = useLocation();
 
   // Function to check if a path is active
-  const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/"; // Ensure Home is active only when on "/"
-    }
-    return location.pathname.startsWith(path) && path !== "/";
-  };
+  const isActive = (path) => location.pathname === path;
+
   
   return (
     <AppBar position="static" sx={{ background: "#2E3B55" }}>
@@ -66,13 +62,14 @@ const Navbar = () => {
                 <Button
                   color={isActive("/add-prescription") ? "secondary" : "inherit"}
                   component={Link}
-                  to="/add-prescription"
+                  to="/upload-prescription"
                 >
                   Add Prescription
                 </Button>
               )}
 
               {user.role === "pharmacist" && (
+                <>
                 <Button
                   color={isActive("/pharmacy-access") ? "secondary" : "inherit"}
                   component={Link}
@@ -80,6 +77,29 @@ const Navbar = () => {
                 >
                   View Prescriptions
                 </Button>
+                 <Button
+                 color={isActive("/medicine-verification") ? "secondary" : "inherit"}
+                 component={Link}
+                 to="/medicine-verification"
+               >
+                 Scan Medicine
+               </Button>
+               <Button
+                 color={isActive("/purchase-register") ? "secondary" : "inherit"}
+                 component={Link}
+                 to="/purchase-register"
+               >
+                 Purchase
+               </Button>
+               <Button
+                 color={isActive("/stock-register") ? "secondary" : "inherit"}
+                 component={Link}
+                 to="/stock-register"
+               >
+                 Stock
+               </Button>
+              
+               </>
               )}
 
               {user.role === "route-user" && (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, TextField } from "@mui/material";
+import { Container, Typography, Button, TextField, Paper, Box } from "@mui/material";
 import QrScanner from "react-qr-scanner";
 
 const PharmacyAccessPage = () => {
@@ -18,45 +18,52 @@ const PharmacyAccessPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: "50px", textAlign: "center" }}>
-      <Typography variant="h5">Pharmacy Prescription Access</Typography>
+    <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
+      <Paper elevation={3} sx={{ p: 3, textAlign: "center" }}>
+        <Typography variant="h5" gutterBottom>
+          Pharmacy Prescription Access
+        </Typography>
 
-      {/* User can enter ID manually */}
-      <TextField
-        label="Enter or Scan User ID"
-        variant="outlined"
-        fullWidth
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-        style={{ margin: "20px 0" }}
-      />
+        {/* Input Field */}
+        <TextField
+          label="Enter or Scan User ID"
+          variant="outlined"
+          fullWidth
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+          sx={{ my: 2 }}
+        />
 
-      <Button variant="contained" color="primary" onClick={() => setScanning(true)}>
-        Scan QR Code
-      </Button>
-
-      {scanning && (
-        <div style={{ marginTop: "20px" }}>
-          <QrScanner
-            delay={300}
-            onScan={handleScan}
-            onError={handleError}
-            style={{ width: "100%" }}
-          />
-          <Button variant="contained" color="secondary" onClick={() => setScanning(false)}>
-            Stop Scanning
+        {/* Buttons Section */}
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+          <Button variant="contained" color="primary" onClick={() => setScanning(true)}>
+            Scan QR Code
           </Button>
-        </div>
-      )}
+          <Button
+            variant="contained"
+            color="success"
+            disabled={!userId}
+            onClick={() => console.log("Retrieving prescription for User ID:", userId)}
+          >
+            Retrieve Prescription
+          </Button>
+        </Box>
 
-      <Button
-        variant="contained"
-        color="primary"
-        style={{ marginTop: "20px" }}
-        onClick={() => console.log("Retrieving prescription for User ID:", userId)}
-      >
-        Retrieve Prescription
-      </Button>
+        {/* QR Scanner Section */}
+        {scanning && (
+          <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
+            <QrScanner delay={300} onScan={handleScan} onError={handleError} style={{ width: "100%" }} />
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ mt: 2 }}
+              onClick={() => setScanning(false)}
+            >
+              Stop Scanning
+            </Button>
+          </Paper>
+        )}
+      </Paper>
     </Container>
   );
 };

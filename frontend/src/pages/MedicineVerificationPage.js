@@ -18,7 +18,11 @@ const MedicineVerificationPage = () => {
       ingredients: "Paracetamol 500mg",
       purpose: "Pain relief, fever reduction",
       procedure: "Take 1 tablet every 6 hours after meals",
-      premium: { reviews: "4.5/5 ⭐", blogs: "Top 5 uses of Paracetamol", cheapestStore: "MediStore - $5.99" }
+      premium: {
+        reviews: "4.5/5 ⭐",
+        blogs: "Top 5 uses of Paracetamol",
+        cheapestStore: "MediStore - $5.99",
+      },
     },
     "987654321": {
       name: "Fake Drug",
@@ -29,8 +33,8 @@ const MedicineVerificationPage = () => {
       ingredients: "Unknown",
       purpose: "Unknown",
       procedure: "Not safe to consume",
-      premium: null
-    }
+      premium: null,
+    },
   };
 
   const handleScan = (err, result) => {
@@ -46,42 +50,47 @@ const MedicineVerificationPage = () => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
-      <Typography variant="h5">🩺 Medicine Verification</Typography>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          🩺 Medicine Verification
+        </Typography>
 
-      {scanning ? (
-        <Box sx={{ mt: 3 }}>
-          <BarcodeScannerComponent onUpdate={handleScan} />
-          <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={() => setScanning(false)}>
-            Stop Scanning
+        {scanning ? (
+          <Box sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
+            <BarcodeScannerComponent onUpdate={handleScan} />
+            <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={() => setScanning(false)}>
+              Stop Scanning
+            </Button>
+          </Box>
+        ) : (
+          <Button variant="contained" color="primary" sx={{ mt: 3 }} onClick={() => setScanning(true)}>
+            Scan Medicine QR/Barcode
           </Button>
-        </Box>
-      ) : (
-        <Button variant="contained" color="primary" sx={{ mt: 3 }} onClick={() => setScanning(true)}>
-          Scan Medicine QR/Barcode
-        </Button>
-      )}
+        )}
 
-      {barcode && verificationResult && (
-        <Paper elevation={3} sx={{ mt: 4, p: 3 }}>
-          <Typography variant="h6" color={verificationResult.status === "Authentic" ? "green" : "red"}>
-            {verificationResult.name} ({verificationResult.status})
-          </Typography>
-          <Typography>📆 Production Date: {verificationResult.productionDate}</Typography>
-          <Typography>⌛ Expiry Date: {verificationResult.expiryDate}</Typography>
-          <Typography>🧪 Ingredients: {verificationResult.ingredients}</Typography>
-          <Typography>🔍 Purpose: {verificationResult.purpose}</Typography>
-          <Typography>📜 Procedure: {verificationResult.procedure}</Typography>
+        {barcode && verificationResult && (
+          <Paper elevation={3} sx={{ mt: 4, p: 3, textAlign: "left" }}>
+            <Typography variant="h6" sx={{ color: verificationResult.status === "Authentic" ? "green" : "red" }}>
+              {verificationResult.name} ({verificationResult.status})
+            </Typography>
+            <Typography>🏢 Brand: {verificationResult.brand}</Typography>
+            <Typography>📆 Production Date: {verificationResult.productionDate}</Typography>
+            <Typography>⌛ Expiry Date: {verificationResult.expiryDate}</Typography>
+            <Typography>🧪 Ingredients: {verificationResult.ingredients}</Typography>
+            <Typography>🔍 Purpose: {verificationResult.purpose}</Typography>
+            <Typography>📜 Procedure: {verificationResult.procedure}</Typography>
 
-          {verificationResult.premium && (
-            <Box sx={{ mt: 2, bgcolor: "#f5f5f5", p: 2, borderRadius: 1 }}>
-              <Typography variant="h6">⭐ Premium Features</Typography>
-              <Typography>📝 Reviews: {verificationResult.premium.reviews}</Typography>
-              <Typography>📖 Related Blogs: {verificationResult.premium.blogs}</Typography>
-              <Typography>💰 Cheapest Store: {verificationResult.premium.cheapestStore}</Typography>
-            </Box>
-          )}
-        </Paper>
-      )}
+            {verificationResult.premium && (
+              <Box sx={{ mt: 2, bgcolor: "#f5f5f5", p: 2, borderRadius: 1 }}>
+                <Typography variant="h6">⭐ Premium Features</Typography>
+                <Typography>📝 Reviews: {verificationResult.premium.reviews}</Typography>
+                <Typography>📖 Related Blogs: {verificationResult.premium.blogs}</Typography>
+                <Typography>💰 Cheapest Store: {verificationResult.premium.cheapestStore}</Typography>
+              </Box>
+            )}
+          </Paper>
+        )}
+      </Paper>
     </Container>
   );
 };
