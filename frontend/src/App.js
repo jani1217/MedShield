@@ -11,6 +11,8 @@ import SignupPage from "./pages/SignupPage";
 import MyPrescriptionPage from "./pages/MyPrescriptionPage";
 import ReportFraudPage from "./pages/ReportFraudPage";
 import BestStoresPage from "./pages/BestStoresPage";
+import PurchaseRegister from "./pages/PurchaseReg";
+import StockRegister from "./pages/Stock";
 const ProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
   return user ? children : <Navigate to="/auth" />;
@@ -30,6 +32,8 @@ const App = () => {
         <Route path="/my-prescriptions" element={<ProtectedRoute><MyPrescriptionPage /></ProtectedRoute>} />
         <Route path="/report-fraud" element={<ProtectedRoute><ReportFraudPage /></ProtectedRoute>} />
         <Route path="/best-stores" element={<ProtectedRoute><BestStoresPage /></ProtectedRoute>} />
+        <Route path="/purchase-register" element={<ProtectedRoute><PurchaseRegister /></ProtectedRoute>} />
+        <Route path="/stock-register" element={<ProtectedRoute><StockRegister /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

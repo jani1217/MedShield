@@ -42,13 +42,15 @@ const Dashboard = () => {
       { title: "🏬 Best Store #3", link: "/top-stores" },
     ],
     doctor: [
-      { title: "📋 Add Prescription", link: "/add-prescription" },
+      { title: "📋 Add Prescription", link: "/upload-prescription" },
       { title: "🔍 Verify Medicines", link: "/medicine-verification" },
       { title: "🩺 Patient Reports", link: "/patient-reports" },
     ],
     pharmacist: [
       { title: "📜 View Prescriptions", link: "/pharmacy-access" },
-      { title: "💊 Verify Medicine Stock", link: "/medicine-stock" },
+      {title: " 🩺 Verify Medicines", link: "/medicine-verification" },
+      { title: "🛒 Purchase Register", link: "/purchase-register" }, // New
+      { title: "📦 Stock Register", link: "/stock-register" }, // New
     ],
     routeUser: [
       { title: "✔️ Validate Complaints", link: "/validate-complaints" },
