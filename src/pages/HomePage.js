@@ -40,6 +40,25 @@ const Dashboard = () => {
       { title: "🔍 Verify Medicines", link: "/medicine-verification" },
       { title: "🩺 Patient Reports", link: "/patient-reports" },
     ],
+    pharmacist: [
+      { title: "📜 View Prescriptions", link: "/pharmacy-access" },
+      {title: " 🩺 Verify Medicines", link: "/medicine-verification" },
+      { title: "🛒 Purchase Register", link: "/purchase-register" }, // New
+      { title: "📦 Stock Register", link: "/stock-register" }, // New
+    ],
+    rootuser: [
+      { title: "✔️ Validate Complaints", link: "/validate-complaints" },
+      { title: "📜 Generate Barcodes", link: "/generate-barcodes" },
+      { title: "🏭 Issue Licenses", link: "/issue-licenses" },
+    ],
+    manufacturer: [
+      { title: "🏭 View Barcodes", link: "/view-barcodes" },
+      { title: "📝 Manage Production", link: "/manage-production" },
+    ],
+    admin: [
+      { title: "👥 Manage Users", link: "/manage-users" },
+      { title: "📊 System Reports", link: "/system-reports" },
+    ],
   };
 
   return (
