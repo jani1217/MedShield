@@ -47,9 +47,9 @@ const Dashboard = () => {
       { title: "📦 Stock Register", link: "/stock-register" }, // New
     ],
     rootuser: [
-      { title: "✔️ Validate Complaints", link: "/validate-complaints" },
-      { title: "📜 Generate Barcodes", link: "/generate-barcodes" },
-      { title: "🏭 Issue Licenses", link: "/issue-licenses" },
+      { title: " Suspicious Transactions ", link: "/validate-complaints" },
+      { title: "View Complaints", link: "/view-complaints" },
+      { title: "Issue Licenses", link: "/issue-licenses" },
     ],
     manufacturer: [
       { title: "🏭 View Barcodes", link: "/view-barcodes" },

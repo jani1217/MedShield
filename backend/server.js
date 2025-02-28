@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-
+const productRoutes = require("./routes/productRoutes");
 // Middleware (MOVE THIS UP)
 app.use(express.json());
 app.use(cors());
@@ -15,10 +15,13 @@ const Prescription = require('./models/Prescription');
 const Medicine = require('./models/Medicine');
 const authRoutes = require('./routes/auth');
 const prescriptionRoutes = require("./routes/prescription");
+const complaintRoutes = require("./routes/compla");
 app.use("/api/prescriptions", prescriptionRoutes);
 
 // Use Routes
 app.use('/api/auth', authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/comp", complaintRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
