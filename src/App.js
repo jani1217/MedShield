@@ -13,6 +13,10 @@ import ReportFraudPage from "./pages/ReportFraudPage";
 import BestStoresPage from "./pages/BestStoresPage";
 import PurchaseRegister from "./pages/PurchaseReg";
 import StockRegister from "./pages/Stock";
+import ProductTable from "./pages/val_com";
+import LicenseForm from "./pages/LicenseForm";
+import ComplaintTable from "./pages/vi_comp";
+
 const ProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
   return user ? children : <Navigate to="/auth" />;
@@ -34,6 +38,9 @@ const App = () => {
         <Route path="/best-stores" element={<ProtectedRoute><BestStoresPage /></ProtectedRoute>} />
         <Route path="/purchase-register" element={<ProtectedRoute><PurchaseRegister /></ProtectedRoute>} />
         <Route path="/stock-register" element={<ProtectedRoute><StockRegister /></ProtectedRoute>} />
+        <Route path="/validate-complaints" element={<ProductTable />} /> 
+        <Route path="/issue-licenses" element={<LicenseForm />} />
+        <Route path="/view-complaints" element={<ComplaintTable />} /> 
       </Routes>
     </Router>
   );
