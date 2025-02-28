@@ -1,21 +1,19 @@
 import React, { useContext } from "react";
 import { Container, Typography, Grid, Paper, Avatar, Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext"; // Import authentication context
+import { AuthContext } from "../context/AuthContext";
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext); // Getting logged-in user details
+  const { user } = useContext(AuthContext);
 
-  // If user is not logged in, show welcome screen
   if (!user) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, textAlign: "center" }}>
+      <Container maxWidth="md" sx={{ mt: 4, textAlign: "center", bgcolor: "#0a192f", color: "#ffffff", p: 5, borderRadius: 3 }}>
         <Typography variant="h4" gutterBottom>
           Welcome to MedShield 🏥
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography variant="body1" color="gray">
           MedShield helps you verify medicines, manage prescriptions, report counterfeit drugs, and find the best pharmacies.
-          Sign up or log in to access all features.
         </Typography>
         <Box sx={{ mt: 3 }}>
           <Button variant="contained" color="primary" component={Link} to="/auth" sx={{ mx: 1 }}>
@@ -29,64 +27,37 @@ const Dashboard = () => {
     );
   }
 
-  const role = user?.role || "user"; // Default role is "user" if not specified
-
-  // Define dashboard items based on roles
+  const role = user?.role || "user";
   const dashboardItems = {
     user: [
       { title: "🩺 MediScan", link: "/medicine-verification" },
       { title: "📜 My Prescription", link: "/my-prescriptions" },
       { title: "🚨 Report Fraud", link: "/report-fraud" },
-      { title: "🏬 Best Store #1", link: "/top-stores" },
-      { title: "🏬 Best Store #2", link: "/top-stores" },
-      { title: "🏬 Best Store #3", link: "/top-stores" },
+      { title: "🏬 Best Stores", link: "/top-stores" },
     ],
     doctor: [
       { title: "📋 Add Prescription", link: "/upload-prescription" },
       { title: "🔍 Verify Medicines", link: "/medicine-verification" },
       { title: "🩺 Patient Reports", link: "/patient-reports" },
     ],
-    pharmacist: [
-      { title: "📜 View Prescriptions", link: "/pharmacy-access" },
-      {title: " 🩺 Verify Medicines", link: "/medicine-verification" },
-      { title: "🛒 Purchase Register", link: "/purchase-register" }, // New
-      { title: "📦 Stock Register", link: "/stock-register" }, // New
-    ],
-    routeUser: [
-      { title: "✔️ Validate Complaints", link: "/validate-complaints" },
-      { title: "📜 Generate Barcodes", link: "/generate-barcodes" },
-      { title: "🏭 Issue Licenses", link: "/issue-licenses" },
-    ],
-    manufacturer: [
-      { title: "🏭 View Barcodes", link: "/view-barcodes" },
-      { title: "📝 Manage Production", link: "/manage-production" },
-    ],
-    admin: [
-      { title: "👥 Manage Users", link: "/manage-users" },
-      { title: "📊 System Reports", link: "/system-reports" },
-    ],
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
-      {/* Profile Banner */}
-      <Paper elevation={3} sx={{ p: 3, display: "flex", alignItems: "center", gap: 2 }}>
-        <Avatar sx={{ width: 60, height: 60, bgcolor: "#2E3B55" }}>{role.charAt(0).toUpperCase()}</Avatar>
+    <Container maxWidth="lg" sx={{ mt: 4, bgcolor: "#0a192f", color: "#ffffff", p: 5, borderRadius: 3 }}>
+      <Paper elevation={3} sx={{ p: 3, display: "flex", alignItems: "center", gap: 2, bgcolor: "#1f2a48" }}>
+        <Avatar sx={{ width: 60, height: 60, bgcolor: "#6a8caf" }}>{role.charAt(0).toUpperCase()}</Avatar>
         <Box>
-          <Typography variant="h6">Welcome, {user?.name || "User"}</Typography>
-          <Typography variant="body2" color="textSecondary">
-            Role: {role.charAt(0).toUpperCase() + role.slice(1)}
-          </Typography>
+          <Typography variant="h6" color="white">Welcome, {user?.name || "User"}</Typography>
+          <Typography variant="body2" color="gray">Role: {role.charAt(0).toUpperCase() + role.slice(1)}</Typography>
         </Box>
       </Paper>
 
-      {/* Feature Boxes (Dynamic Based on Role) */}
-      <Grid container spacing={3} sx={{ mt: 3 }}>
+      <Grid container spacing={3} sx={{ mt: 4 }}>
         {dashboardItems[role].map((item, index) => (
-          <Grid item xs={6} md={4} key={index}>
+          <Grid item xs={12} sm={6} md={4} key={index}>
             <Link to={item.link} style={{ textDecoration: "none" }}>
-              <Paper elevation={3} sx={boxStyle}>
-                <Typography variant="h6">{item.title}</Typography>
+              <Paper elevation={5} sx={boxStyle}>
+                <Typography variant="h6" color="white">{item.title}</Typography>
               </Paper>
             </Link>
           </Grid>
@@ -96,12 +67,16 @@ const Dashboard = () => {
   );
 };
 
-// Box styling
 const boxStyle = {
   p: 3,
   textAlign: "center",
-  bgcolor: "#f5f5f5",
-  "&:hover": { bgcolor: "#e0e0e0", cursor: "pointer" },
+  bgcolor: "rgba(255, 255, 255, 0.1)",
+  borderRadius: "12px",
+  boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+  transition: "0.3s",
+  '&:hover': { bgcolor: "rgba(255, 255, 255, 0.2)", transform: "scale(1.05)" },
 };
 
 export default Dashboard;
