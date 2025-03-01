@@ -8,7 +8,8 @@ const ProductSchema = new mongoose.Schema({
   expiry_date: { type: Date, required: true },
   producer_name: { type: String, required: true },
   customer_name: { type: String, required: true },
-  production_date: { type: Date, required: true }
+  production_date: { type: Date, required: true },
+  status: { type: String, default: "Available" }, // Default status before selling
 });
 
 const Product = mongoose.model("Product", ProductSchema);
