@@ -10,18 +10,18 @@ const qrcode = require("qrcode-reader");
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-// 🔹 Helper Function: AES Decryption
+// 🔹 AES Decryption Function
 function decryptAES(encryptedText, key) {
   try {
     const bytes = CryptoJS.AES.decrypt(encryptedText, key);
-    return bytes.toString(CryptoJS.enc.Utf8); // Returns decrypted product ID
+    return bytes.toString(CryptoJS.enc.Utf8);
   } catch (error) {
     console.error("Decryption Error:", error);
     return null;
   }
 }
 
-// 🔹 Helper Function: Scan QR Code and Extract Hash
+// 🔹 Scan QR Code and Extract Data
 async function scanQRCode(filePath) {
   try {
     const image = await Jimp.read(filePath);
@@ -43,47 +43,44 @@ async function scanQRCode(filePath) {
   }
 }
 
-// 🔹 API: Upload QR Code, Scan & Verify Product
-router.post("/scan", upload.single("qr_code"), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+// 🔹 API Endpoint: Upload & Decrypt QR Code
+router.post("/scanner", upload.single("qr_code"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No QR code file uploaded" });
 
-    const aesKey = req.body.aes_key || "thisisasecretkey"; // Use your encryption key
+  const aesKey = req.body.aes_key || "thisisasecretkey"; // Key should match encryption key
+
+  try {
     console.log("🔹 Scanning QR Code...");
     
-    // Step 1: Extract QR Code Hash
+    // Step 1: Extract Encrypted Data from QR Code
     const encryptedData = await scanQRCode(req.file.path);
-    fs.unlinkSync(req.file.path); // Delete file after scanning
+    fs.unlinkSync(req.file.path); // Cleanup
 
     if (!encryptedData) return res.status(400).json({ error: "Invalid QR Code" });
-    console.log("🔹 QR Code Hash Extracted:", encryptedData);
+    console.log("🔹 Extracted Encrypted Data:", encryptedData);
 
-    // Step 2: Decrypt QR Code Hash
+    // Step 2: Decrypt QR Data
     const productID = decryptAES(encryptedData, aesKey);
     if (!productID) return res.status(400).json({ error: "Decryption failed" });
     console.log("🔹 Decrypted Product ID:", productID);
 
-    // Step 3: Search Product in Database
-    const product = await Product.findOne({ prod_id: productID });
+    // Step 3: Find Product in Database
+    const product = await Product.findOne({ productId: productID });
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Step 4: Mark Product as Sold
-    product.status = "Sold";
-    await product.save();
-
+    // Step 4: Send Product Details
     return res.json({
-      message: "✅ Product verified & marked as Sold",
-      product_id: product.prod_id,
+      message: "✅ Product verified successfully",
+      product_id: product.productId,
       name: product.prod_name,
-      producer: product.producer_name,
+      manufacturer: product.producer_name,
+      manufacture_date: product.manufacture_date,
       expiry_date: product.expiry_date,
-      production_date: product.production_date,
-      customer: product.customer_name,
-      status: product.status,
     });
+
   } catch (err) {
     console.error("❌ Error processing request:", err);
     res.status(500).json({ error: "Internal server error" });

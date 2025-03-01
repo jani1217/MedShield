@@ -35,7 +35,7 @@ const MedicineVerificationPage = () => {
     formData.append("aes_key", "thisisasecretkey");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/scan", formData, {
+      const response = await axios.post("http://localhost:5000/api/scanner", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setVerificationResult(response.data);
