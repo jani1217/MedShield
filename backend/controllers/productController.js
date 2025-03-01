@@ -1,7 +1,9 @@
 const Product = require("../models/Product");
 const User = require("../models/User");
+const CryptoJS = require("crypto-js");
+const QRCode = require("qrcode");
 
-// Fetch all manufacturers (users with role = "manufacturer")
+// Fetch all manufacturers
 exports.getManufacturers = async (req, res) => {
   try {
     const manufacturers = await User.find({ role: "manufacturer" }).select("name");
@@ -11,31 +13,80 @@ exports.getManufacturers = async (req, res) => {
   }
 };
 
-// Add a new product
+// Add a Product
 exports.addProduct = async (req, res) => {
   try {
-    const { prod_name, producer_name } = req.body;
+    const { prod_name, producer_name, qty, manufacture_date, expiry_date } = req.body;
 
+    // Basic Validations
     if (!prod_name || !producer_name) {
-      return res.status(400).json({ error: "Product name and manufacturer are required" });
+      return res.status(400).json({ error: "Product name and manufacturer are required." });
     }
 
-    // Generate random product details
+    if (prod_name.length < 3 || producer_name.length < 3) {
+      return res.status(400).json({ error: "Product name and manufacturer must be at least 3 characters long." });
+    }
+
+    if (!Number.isInteger(qty) || qty <= 0) {
+      return res.status(400).json({ error: "Quantity must be a positive integer." });
+    }
+
+    if (new Date(expiry_date) <= new Date(manufacture_date)) {
+      return res.status(400).json({ error: "Expiry date must be after the production date." });
+    }
+
+    // ✅ Generate Unique Product ID (Ensuring it's Unique)
+    let productId;
+    let isUnique = false;
+
+    while (!isUnique) {
+      const serialNumber = Math.floor(1000 + Math.random() * 9000);
+      productId = `${prod_name.slice(0, 3).toUpperCase()}${serialNumber}${producer_name.slice(0, 3).toUpperCase()}`;
+
+      const existingProduct = await Product.findOne({ prod_id: productId });
+      if (!existingProduct) {
+        isUnique = true;
+      }
+    }
+
+    // 🔒 Encrypt Product ID
+    const secretKey = process.env.SECRET_KEY || "fallback_secret";
+    let encryptedProductId;
+    
+    try {
+      encryptedProductId = CryptoJS.AES.encrypt(productId, secretKey).toString();
+    } catch (error) {
+      console.error("❌ Encryption Failed:", error);
+      return res.status(500).json({ error: "Encryption failed, unable to generate product ID." });
+    }
+
+    // ✅ Generate QR Code (Contains Encrypted Product ID)
+    const qrCodeDataURL = await QRCode.toDataURL(encryptedProductId);
+
+    // 🔥 Create New Product
     const newProduct = new Product({
-      prod_id: "P" + Math.floor(1000 + Math.random() * 9000), // Random product ID
+      prod_id: encryptedProductId,  // 🔒 Encrypted ID
+      productId,  // ✅ Readable Unique ID
       prod_name,
       timestamp: new Date(),
-      qty: Math.floor(Math.random() * 50) + 1, // Random quantity (1-50)
-      expiry_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // 1 year from now
+      qty,
+      expiry_date: new Date(expiry_date),
       producer_name,
-      customer_name: "N/A",
-      production_date: new Date(),
+      production_date: new Date(manufacture_date),
       status: "Available",
+      customer_name: "N/A",
+      qr_code: qrCodeDataURL,  // 📌 Store QR Code in DB
     });
 
     await newProduct.save();
-    res.json({ message: "✅ Product added successfully!" });
+    res.json({ 
+      message: "✅ Product added successfully!", 
+      productId, 
+      qrCode: qrCodeDataURL  // ⬇️ Return QR Code
+    });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error adding product:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

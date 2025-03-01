@@ -1,37 +1,45 @@
-import React, { useState, useEffect } from "react";
-import { Container, Typography, TextField, MenuItem, Button, Paper, Box } from "@mui/material";
+import React, { useState } from "react";
+import { Container, Typography, TextField, Button, Paper, Box } from "@mui/material";
 import axios from "axios";
 
 const ManageProduction = () => {
   const [prodName, setProdName] = useState("");
-  const [manufacturers, setManufacturers] = useState([]);
-  const [selectedManufacturer, setSelectedManufacturer] = useState("");
-  const [message, setMessage] = useState("");
+  const [manufacturerName, setManufacturerName] = useState("");
+  const [qty] = useState(10); // Default Quantity (Disabled)
+  const [manufactureDate] = useState(new Date().toISOString().split("T")[0]); // Current Date (Disabled)
+  const [expiryDate] = useState(() => {
+    let date = new Date();
+    date.setFullYear(date.getFullYear() + 3); // Expiry Date: 3 Years from Manufacture Date
+    return date.toISOString().split("T")[0];
+  });
 
-  // Fetch manufacturers from the backend
-  useEffect(() => {
-    axios.get("http://localhost:5000/manufacturers")
-      .then(response => setManufacturers(response.data))
-      .catch(error => console.error("Error fetching manufacturers:", error));
-  }, []);
+  const [message, setMessage] = useState("");
 
   // Submit the product details
   const handleSubmit = () => {
-    if (!prodName || !selectedManufacturer) {
-      setMessage("Please enter product name and select a manufacturer.");
+    if (!prodName || !manufacturerName) {
+      setMessage("Please enter product name and manufacturer name.");
       return;
     }
 
-    axios.post("http://localhost:5000/add-product", {
-      prod_name: prodName,
-      producer_name: selectedManufacturer
-    })
-    .then(response => {
-      setMessage(response.data.message);
-      setProdName("");
-      setSelectedManufacturer("");
-    })
-    .catch(error => setMessage("Error adding product."));
+    if (prodName.length < 3 || manufacturerName.length < 3) {
+      setMessage("Product name and manufacturer name must be at least 3 characters long.");
+      return;
+    }
+
+    axios.post("http://localhost:5000/api/products/add-product", {
+        prod_name: prodName,
+        producer_name: manufacturerName,
+        qty,
+        manufacture_date: manufactureDate,
+        expiry_date: expiryDate,
+      })
+      .then((response) => {
+        setMessage(response.data.message);
+        setProdName("");
+        setManufacturerName("");
+      })
+      .catch((error) => setMessage("❌ Error adding product."));
   };
 
   return (
@@ -49,19 +57,43 @@ const ManageProduction = () => {
         />
 
         <TextField
-          select
-          label="Select Manufacturer"
+          label="Manufacturer Name"
+          variant="outlined"
           fullWidth
-          value={selectedManufacturer}
-          onChange={(e) => setSelectedManufacturer(e.target.value)}
+          value={manufacturerName}
+          onChange={(e) => setManufacturerName(e.target.value)}
           sx={{ my: 2 }}
-        >
-          {manufacturers.map((manufacturer) => (
-            <MenuItem key={manufacturer.name} value={manufacturer.name}>
-              {manufacturer.name}
-            </MenuItem>
-          ))}
-        </TextField>
+        />
+
+        <TextField
+          label="Quantity"
+          type="number"
+          variant="outlined"
+          fullWidth
+          value={qty}
+          disabled
+          sx={{ my: 2 }}
+        />
+
+        <TextField
+          label="Manufacture Date"
+          type="date"
+          variant="outlined"
+          fullWidth
+          value={manufactureDate}
+          disabled
+          sx={{ my: 2 }}
+        />
+
+        <TextField
+          label="Expiry Date"
+          type="date"
+          variant="outlined"
+          fullWidth
+          value={expiryDate}
+          disabled
+          sx={{ my: 2 }}
+        />
 
         <Box sx={{ mt: 2 }}>
           <Button variant="contained" color="primary" onClick={handleSubmit}>

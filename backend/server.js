@@ -32,17 +32,11 @@ app.use(express.json());
 app.use(cors());
 
 // Import Routes
-const authRoutes = require("./routes/auth");
-const prescriptionRoutes = require("./routes/prescription");
-const complaintRoutes = require("./routes/compla");
+
 const scanRoutes = require("./routes/scan"); // ✅ Include Scan API
-const productRoutes = require("./routes/productRoutes");
 
 // Use Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/prescriptions", prescriptionRoutes);
-app.use("/api/comp", complaintRoutes);
-app.use("/api/products", productRoutes);
+
 app.use("/api/scan", scanRoutes); // ✅ Register Scan API
 
 // Database Connection

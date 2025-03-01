@@ -5,7 +5,7 @@ const productController = require("../controllers/productController");
 
 router.get("/manufacturers", productController.getManufacturers);
 
-router.post("/add", productController.addProduct);
+router.post("/add-product", productController.addProduct);
 
 // @route GET /api/products
 // @desc Fetch products where qty >= 20
