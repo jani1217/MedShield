@@ -30,21 +30,21 @@ const Dashboard = () => {
   const role = user?.role || "user";
   const dashboardItems = {
     user: [
-      { title: "🩺 MediScan", link: "/medicine-verification" },
-      { title: "📜 My Prescription", link: "/my-prescriptions" },
-      { title: "🚨 Report Fraud", link: "/report-fraud" },
-      { title: "🏬 Best Stores", link: "/top-stores" },
+      { title: " MediScan", link: "/medicine-verification" },
+      { title: " My Prescription", link: "/my-prescriptions" },
+      { title: " Report Fraud", link: "/report-fraud" },
+      { title: " Best Stores", link: "/top-stores" },
     ],
     doctor: [
-      { title: "📋 Add Prescription", link: "/upload-prescription" },
-      { title: "🔍 Verify Medicines", link: "/medicine-verification" },
-      { title: "🩺 Patient Reports", link: "/patient-reports" },
+      { title: " Add Prescription", link: "/upload-prescription" },
+      { title: " Verify Medicines", link: "/medicine-verification" },
+      { title: " Patient Reports", link: "/patient-reports" },
     ],
     pharmacist: [
-      { title: "📜 View Prescriptions", link: "/pharmacy-access" },
-      {title: " 🩺 Verify Medicines", link: "/medicine-verification" },
-      { title: "🛒 Purchase Register", link: "/purchase-register" }, // New
-      { title: "📦 Stock Register", link: "/stock-register" }, // New
+      { title: " View Prescriptions", link: "/pharmacy-access" },
+      {title: " Verify Medicines", link: "/medicine-verification" },
+      { title: "Purchase Register", link: "/purchase-register" }, // New
+      { title: "Stock Register", link: "/stock-register" }, // New
     ],
     rootuser: [
       { title: " Suspicious Transactions ", link: "/validate-complaints" },
@@ -52,12 +52,12 @@ const Dashboard = () => {
       { title: "Issue Licenses", link: "/issue-licenses" },
     ],
     manufacturer: [
-      { title: "🏭 View Barcodes", link: "/view-barcodes" },
-      { title: "📝 Manage Production", link: "/manage-production" },
+      { title: " View Barcodes", link: "/view-barcodes" },
+      { title: "Manage Production", link: "/manage-production" },
     ],
     admin: [
-      { title: "👥 Manage Users", link: "/manage-users" },
-      { title: "📊 System Reports", link: "/system-reports" },
+      { title: "Manage Users", link: "/manage-users" },
+      { title: "System Reports", link: "/system-reports" },
     ],
   };
 

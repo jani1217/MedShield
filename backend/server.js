@@ -35,27 +35,27 @@ app.use(cors());
 
 
 
-const scanRoutes = require("./routes/scan"); // ✅ Include Scan API
+const scanRoutes = require("./routes/scan"); //  Include Scan API
 
 // Use Routes
 
-app.use("/api/scanner", scanRoutes); // ✅ Register Scan API
+app.use("/api/scanner", scanRoutes); //  Register Scan API
 
 // Database Connection
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("✅ MongoDB Connected"))
+  .then(() => console.log("MongoDB Connected"))
   .catch((err) => {
-    console.error("❌ MongoDB Connection Error:", err);
+    console.error(" MongoDB Connection Error:", err);
     process.exit(1);
   });
 
 // Root Route
 app.get("/", (req, res) => {
-  res.send("🚀 MedShield Backend Running");
+  res.send("MedShield Backend Running");
 });
 
 // Start Server
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`🌍 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
