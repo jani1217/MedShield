@@ -1,64 +1,92 @@
 const express = require("express");
 const multer = require("multer");
 const CryptoJS = require("crypto-js");
-const Product = require("../models/Product"); // Adjusted path
+const Product = require("../models/Product");
 const fs = require("fs");
-const qrImage = require("qr-image");
-const sharp = require("sharp");
+const Jimp = require("jimp");
+const { promisify } = require("util");
+const qrcode = require("qrcode-reader");
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" }); // File upload location
+const upload = multer({ dest: "uploads/" });
 
-// **AES Decryption Function**
+// 🔹 Helper Function: AES Decryption
 function decryptAES(encryptedText, key) {
-  const bytes = CryptoJS.AES.decrypt(encryptedText, key);
-  return bytes.toString(CryptoJS.enc.Utf8);
-}
-
-// **QR Code Scanner Function**
-async function scanQRCode(filePath) {
   try {
-    const imageBuffer = await sharp(filePath).grayscale().toBuffer();
-    const qr = qrImage.imageSync(imageBuffer, { type: "png" });
-
-    return qr.toString(); // Extracted encrypted data
-  } catch (err) {
-    console.error("❌ QR Code Scanning Error:", err);
+    const bytes = CryptoJS.AES.decrypt(encryptedText, key);
+    return bytes.toString(CryptoJS.enc.Utf8); // Returns decrypted product ID
+  } catch (error) {
+    console.error("Decryption Error:", error);
     return null;
   }
 }
 
-// **QR Code API**
-router.post("/", upload.single("qr_code"), async (req, res) => {
+// 🔹 Helper Function: Scan QR Code and Extract Hash
+async function scanQRCode(filePath) {
   try {
-    const aesKey = req.body.aes_key;
-    if (!req.file || !aesKey) return res.status(400).json({ error: "QR Code & AES Key required" });
+    const image = await Jimp.read(filePath);
+    const qr = new qrcode();
 
-    // Scan QR Code to get encrypted data
+    return new Promise((resolve, reject) => {
+      qr.callback = (err, result) => {
+        if (err || !result || !result.result) {
+          reject("QR Code could not be read");
+        } else {
+          resolve(result.result);
+        }
+      };
+      qr.decode(image.bitmap);
+    });
+  } catch (err) {
+    console.error("QR Scan Error:", err);
+    return null;
+  }
+}
+
+// 🔹 API: Upload QR Code, Scan & Verify Product
+router.post("/scan", upload.single("qr_code"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    const aesKey = req.body.aes_key || "thisisasecretkey"; // Use your encryption key
+    console.log("🔹 Scanning QR Code...");
+    
+    // Step 1: Extract QR Code Hash
     const encryptedData = await scanQRCode(req.file.path);
-    if (!encryptedData) return res.status(400).json({ error: "Invalid QR Code" });
+    fs.unlinkSync(req.file.path); // Delete file after scanning
 
-    // Decrypt to get Product ID
+    if (!encryptedData) return res.status(400).json({ error: "Invalid QR Code" });
+    console.log("🔹 QR Code Hash Extracted:", encryptedData);
+
+    // Step 2: Decrypt QR Code Hash
     const productID = decryptAES(encryptedData, aesKey);
     if (!productID) return res.status(400).json({ error: "Decryption failed" });
+    console.log("🔹 Decrypted Product ID:", productID);
 
-    // Check in MongoDB
-    const product = await Product.findOne({ product_id: productID });
+    // Step 3: Search Product in Database
+    const product = await Product.findOne({ prod_id: productID });
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Update status to "Sold"
+    // Step 4: Mark Product as Sold
     product.status = "Sold";
     await product.save();
 
-    res.json({ message: "✅ Product verified & marked as Sold", product_id: productID, name: product.name });
-
-    // Cleanup - Remove uploaded file
-    fs.unlinkSync(req.file.path);
+    return res.json({
+      message: "✅ Product verified & marked as Sold",
+      product_id: product.prod_id,
+      name: product.prod_name,
+      producer: product.producer_name,
+      expiry_date: product.expiry_date,
+      production_date: product.production_date,
+      customer: product.customer_name,
+      status: product.status,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error processing request:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
