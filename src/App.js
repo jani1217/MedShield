@@ -16,6 +16,7 @@ import StockRegister from "./pages/Stock";
 import ProductTable from "./pages/val_com";
 import LicenseForm from "./pages/LicenseForm";
 import ComplaintTable from "./pages/vi_comp";
+import ManageProduction from "./pages/ManageProduction";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -41,6 +42,7 @@ const App = () => {
         <Route path="/validate-complaints" element={<ProductTable />} /> 
         <Route path="/issue-licenses" element={<LicenseForm />} />
         <Route path="/view-complaints" element={<ComplaintTable />} /> 
+        <Route path="/manage-production" element={<ManageProduction />} />
       </Routes>
     </Router>
   );

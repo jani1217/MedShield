@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const productController = require("../controllers/productController");
+
+router.get("/manufacturers", productController.getManufacturers);
+
+router.post("/add", productController.addProduct);
 
 // @route GET /api/products
 // @desc Fetch products where qty >= 20
