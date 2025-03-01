@@ -3,12 +3,12 @@ import axios from "axios";
 import ProductQRCode from "../components/ProductQRCode";
 
 const ManageProductionPage = () => {
-  const [products, setProducts] = useState([]);
+  const [productsroutes, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/products");
+        const response = await axios.get("http://localhost:5000/api/productsroutes");
         setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -31,7 +31,7 @@ const ManageProductionPage = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
+          {productsroutes.map((product) => (
             <tr key={product.productId}>
               <td>{product.prod_name}</td>
               <td>{product.producer_name}</td>

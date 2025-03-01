@@ -13,12 +13,14 @@ app.use(cors());  // To allow Cross-Origin requests
 // Import Routes
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/productRoutes');
+const productRoute = require('./routes/productRoutes1');
 const complaintRoutes = require('./routes/compla');
 const prescriptionRoutes = require("./routes/prescription");  // Prescription route
 
 // Use Routes
 app.use('/api/auth', authRoutes); // Authentication Routes
 app.use("/api/products", productRoutes); // Product Routes
+app.use("/api/productsroutes", productRoute); // Product Routes
 app.use("/api/comp", complaintRoutes); // Complaint Routes
 app.use("/api/prescriptions", prescriptionRoutes);  // Prefix for prescriptions
 

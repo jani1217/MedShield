@@ -1,47 +1,75 @@
-import React, { useState } from "react";
-import { Container, Typography, TextField, Button, Paper, Box } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
 import axios from "axios";
 
 const ManageProduction = () => {
   const [prodName, setProdName] = useState("");
   const [manufacturerName, setManufacturerName] = useState("");
-  const [qty] = useState(10); // Default Quantity (Disabled)
-  const [manufactureDate] = useState(new Date().toISOString().split("T")[0]); // Current Date (Disabled)
-  const [expiryDate] = useState(() => {
-    let date = new Date();
-    date.setFullYear(date.getFullYear() + 3); // Expiry Date: 3 Years from Manufacture Date
-    return date.toISOString().split("T")[0];
-  });
-
+  const [productsroutes, setProducts] = useState([]);
   const [message, setMessage] = useState("");
 
-  // Submit the product details
-  const handleSubmit = () => {
+  const qty = 10; // Default Quantity (Disabled)
+  const manufactureDate = new Date().toISOString().split("T")[0];
+  const expiryDate = (() => {
+    let date = new Date();
+    date.setFullYear(date.getFullYear() + 3);
+    return date.toISOString().split("T")[0];
+  })();
+
+  // Fetch all products
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/productsroutes");
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Submit new product
+  const handleSubmit = async () => {
     if (!prodName || !manufacturerName) {
       setMessage("Please enter product name and manufacturer name.");
       return;
     }
-
     if (prodName.length < 3 || manufacturerName.length < 3) {
       setMessage("Product name and manufacturer name must be at least 3 characters long.");
       return;
     }
 
-    axios.post("http://localhost:5000/api/products/add-product", {
+    try {
+      const response = await axios.post("http://localhost:5000/api/productsroutes/add-product", {
         prod_name: prodName,
         producer_name: manufacturerName,
         qty,
         manufacture_date: manufactureDate,
         expiry_date: expiryDate,
-      })
-      .then((response) => {
-        setMessage(response.data.message);
-        setProdName("");
-        setManufacturerName("");
-      })
-      .catch((error) => setMessage("❌ Error adding product."));
+      });
+      setMessage(response.data.message);
+      setProdName("");
+      setManufacturerName("");
+      fetchProducts(); // Refresh product list
+    } catch (error) {
+      setMessage("❌ Error adding product.");
+    }
   };
-
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ p: 3, mt: 4, textAlign: "center" }}>
@@ -107,6 +135,32 @@ const ManageProduction = () => {
           </Typography>
         )}
       </Paper>
+
+      {/* Product List Table */}
+      <TableContainer component={Paper} sx={{ mt: 4 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><b>Product Name</b></TableCell>
+              <TableCell><b>Manufacturer</b></TableCell>
+              <TableCell><b>Product ID</b></TableCell>
+              <TableCell><b>QR Code</b></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {productsroutes.map((product) => (
+              <TableRow key={product.productId}>
+                <TableCell>{product.prod_name}</TableCell>
+                <TableCell>{product.producer_name}</TableCell>
+                <TableCell>{product.productId}</TableCell>
+                <TableCell>
+                  <img src={product.qr_code} alt="QR Code" width={50} height={50} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Container>
   );
 };
