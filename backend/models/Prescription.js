@@ -1,9 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const PrescriptionSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    imageUrl: { type: String, required: true }, // URL of the uploaded prescription
-    verified: { type: Boolean, default: false } // Verified by pharmacy or not
-}, { timestamps: true });
+const PrescriptionSchema = new mongoose.Schema(
+  {
+    doctorId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    patientId: { type: String, required: true },
+    prescriptionFile: { type: String, required: true },
+    qrCodeFile: { type: String, required: true },
+    hashId: { type: String, required: true, unique: true },
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('Prescription', PrescriptionSchema);
+module.exports = mongoose.model("Prescription", PrescriptionSchema);

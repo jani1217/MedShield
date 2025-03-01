@@ -10,6 +10,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");  // New state for role selection
+  const [doctorId, setDoctorId] = useState("");  // State for doctor ID
   const navigate = useNavigate();
 
   const handleAuth = async (e) => {
@@ -23,7 +24,7 @@ const AuthPage = () => {
         body: JSON.stringify({
           email,
           password,
-          ...(isSignup && { name, role }),  // Include role for signup
+          ...(isSignup && { name, role, ...(role === "doctor" && { doctorId }) }), // Include doctorId if role is doctor
         }),
       });
 
@@ -68,6 +69,16 @@ const AuthPage = () => {
               <MenuItem value="admin">Admin</MenuItem>
             </Select>
           </FormControl>
+
+          {role === "doctor" && (
+            <TextField
+              label="Doctor ID"
+              fullWidth
+              sx={{ mt: 2 }}
+              value={doctorId}
+              onChange={(e) => setDoctorId(e.target.value)}
+            />
+          )}
         </>
       )}
 

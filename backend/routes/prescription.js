@@ -1,61 +1,69 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
 const { body, validationResult } = require("express-validator");
-const Prescription = require("../models/Prescription");  // Ensure you have a Prescription model
-const authMiddleware = require("../middleware/authMiddleware"); // Ensure this file exists
+const Prescription = require("../models/Prescription");  // Ensure this is your Prescription model
+const User = require("../models/User");  // To validate the doctor ID
+const authMiddleware = require("../middleware/authMiddleware");  // Authentication middleware
 
 const router = express.Router();
 
-/**
- * @route   GET /api/prescriptions
- * @desc    Get all prescriptions for the logged-in user
- * @access  Private (Requires authentication)
- */
-router.get("/", authMiddleware, async (req, res) => {
-    try {
-        const prescriptions = await Prescription.find();  // Fetch all prescriptions
-        res.json(prescriptions);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+// Set up multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "./uploads"); // Make sure the `uploads` folder exists
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${Date.now()}_${file.originalname}`);
+    },
+  }),
 });
 
-/**
- * @route   POST /api/prescriptions
- * @desc    Create a new prescription
- * @access  Private (Requires authentication)
- */
+// POST: Upload Prescription
 router.post(
-    "/",
-    [
-        authMiddleware, // Protect the route
-        body("patientId", "Patient ID is required").notEmpty(),
-        body("doctorId", "Doctor ID is required").notEmpty(),
-        body("medicines", "Medicines list is required").isArray({ min: 1 }),
-    ],
-    async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+  "/upload",
+  authMiddleware, // Protect the route, ensuring the user is authenticated
+  upload.fields([
+    { name: "prescription", maxCount: 1 },
+    { name: "qrCode", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    const { doctorId, patientId, hashId } = req.body;
 
-        const { patientId, doctorId, medicines } = req.body;
-
-        try {
-            const newPrescription = new Prescription({
-                patientId,
-                doctorId,
-                medicines,
-                date: new Date(),
-            });
-
-            await newPrescription.save();
-            res.status(201).json(newPrescription);
-        } catch (err) {
-            console.error(err);
-            res.status(500).send("Server Error");
-        }
+    // Check if all required fields are present
+    if (!doctorId || !patientId || !hashId || !req.files["prescription"] || !req.files["qrCode"]) {
+      return res.status(400).json({ msg: "Please fill in all fields and upload files." });
     }
+
+    try {
+      // Validate if the doctor exists
+      const doctor = await User.findById(doctorId);
+      if (!doctor || doctor.role !== "doctor") {
+        return res.status(400).json({ msg: "Doctor ID is invalid or user is not a doctor." });
+      }
+
+      // Save the new prescription to the database
+      const newPrescription = new Prescription({
+        doctorId,
+        patientId,
+        prescriptionFile: req.files["prescription"][0].path, // Save the file path
+        qrCodeFile: req.files["qrCode"][0].path, // Save the QR code file path
+        hashId,
+      });
+
+      await newPrescription.save();
+
+      // Respond with the saved prescription data
+      res.status(201).json({
+        prescriptionId: newPrescription._id,
+        message: "Prescription uploaded successfully.",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: "Server error. Could not upload prescription." });
+    }
+  }
 );
 
 module.exports = router;
