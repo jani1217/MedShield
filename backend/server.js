@@ -33,13 +33,13 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 app.use(express.json());
 app.use(cors());
 
-// Import Routes
+
 
 const scanRoutes = require("./routes/scan"); // ✅ Include Scan API
 
 // Use Routes
 
-app.use("/api/scan", scanRoutes); // ✅ Register Scan API
+app.use("/api/scanner", scanRoutes); // ✅ Register Scan API
 
 // Database Connection
 mongoose

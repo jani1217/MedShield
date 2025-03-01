@@ -21,7 +21,7 @@ const ManageProduction = () => {
   const [productsroutes, setProducts] = useState([]);
   const [message, setMessage] = useState("");
 
-  const qty = 10; // Default Quantity (Disabled)
+  const qty = 40; // Default Quantity (Disabled)
   const manufactureDate = new Date().toISOString().split("T")[0];
   const expiryDate = (() => {
     let date = new Date();
@@ -154,8 +154,12 @@ const ManageProduction = () => {
                 <TableCell>{product.producer_name}</TableCell>
                 <TableCell>{product.productId}</TableCell>
                 <TableCell>
-                  <img src={product.qr_code} alt="QR Code" width={50} height={50} />
-                </TableCell>
+        <a href={product.qr_code} download={`QR_${product.productId}.png`}>
+          <Button variant="contained" color="secondary">
+            Download QR
+          </Button>
+        </a>
+      </TableCell>
               </TableRow>
             ))}
           </TableBody>
