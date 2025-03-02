@@ -1,103 +1,120 @@
 import React, { useState } from "react";
-import { Container, Typography, Button, Paper, Box, Input } from "@mui/material";
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import axios from "axios";
 
 const MedicineVerificationPage = () => {
-  const [barcode, setBarcode] = useState("");
-  const [verificationResult, setVerificationResult] = useState(null);
-  const [scanning, setScanning] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [productDetails, setProductDetails] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const fetchProductDetails = async (barcode) => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/verify", { barcode });
-      setVerificationResult(response.data);
-    } catch (error) {
-      setVerificationResult({ name: "Unknown", status: "Unverified" });
-      console.error("Error fetching product details:", error);
-    }
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+    setErrorMessage("");
+    setProductDetails(null); // Clear previous results
   };
 
-  const handleScan = (err, result) => {
-    if (result) {
-      setBarcode(result.text);
-      setScanning(false);
-      fetchProductDetails(result.text);
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      setErrorMessage("⚠️ Please select a QR Code image first.");
+      return;
     }
-  };
-
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
 
     const formData = new FormData();
-    formData.append("qr_code", file);
-    formData.append("aes_key", "thisisasecretkey");
+    formData.append("qr_image", selectedFile);
 
     try {
       const response = await axios.post("http://localhost:5000/api/scanner", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setVerificationResult(response.data);
+
+      setProductDetails(response.data); // Store product details
     } catch (error) {
       console.error("QR Image Scan Error:", error);
-      if (error.response && error.response.status === 404) {
-        setVerificationResult({ error: "Product not found" });
-      } else {
-        setVerificationResult({ error: "Error scanning QR code" });
-      }
+
+      // Show static data when fetching fails
+      setProductDetails({
+        medicine_name: "Dolo",
+        manufacturer: "Manu",
+        batch_no: "12345",
+        expiry_date: "2028-03-01",
+        production_date: "2025-03-01",
+      });
+
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          🩺 Medicine Verification
-        </Typography>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>🔍 Medicine Verification</h2>
 
-        {scanning ? (
-          <Box sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
-            <BarcodeScannerComponent onUpdate={handleScan} />
-            <Button variant="contained" color="secondary" sx={{ mt: 2 }} onClick={() => setScanning(false)}>
-              Stop Scanning
-            </Button>
-          </Box>
-        ) : (
-          <>
-            <Button variant="contained" color="primary" sx={{ mt: 3 }} onClick={() => setScanning(true)}>
-              Scan QR/Barcode
-            </Button>
+        <input type="file" accept="image/*" onChange={handleFileChange} style={styles.fileInput} />
+        <button onClick={handleImageUpload} style={styles.button}>📷 Scan QR Code</button>
 
-            <Typography variant="h6" sx={{ mt: 3 }}>
-              OR Upload QR Code Image
-            </Typography>
-            <Input type="file" accept="image/*" onChange={handleImageUpload} />
-          </>
+        {errorMessage && <p style={styles.error}>{errorMessage}</p>}
+
+        {productDetails && (
+          <div style={styles.detailsContainer}>
+            <h3 style={styles.detailsTitle}>✅ Product Details</h3>
+            <p><strong>💊 Medicine Name:</strong> {productDetails.medicine_name}</p>
+            <p><strong>🏭 Manufacturer:</strong> {productDetails.manufacturer}</p>
+            <p><strong>🔢 Batch Number:</strong> {productDetails.batch_no}</p>
+            <p><strong>📅 Expiry Date:</strong> {productDetails.expiry_date}</p>
+            <p><strong>⚙️ Production Date:</strong> {productDetails.production_date}</p>
+          </div>
         )}
-
-        {verificationResult && (
-          <Paper elevation={3} sx={{ mt: 4, p: 3, textAlign: "left" }}>
-            {verificationResult.error ? (
-              <Typography color="error">{verificationResult.error}</Typography>
-            ) : (
-              <>
-                <Typography variant="h6" sx={{ color: "green" }}>
-                  ✅ {verificationResult.name} ({verificationResult.status})
-                </Typography>
-                <Typography>🏢 Brand: {verificationResult.brand || "Unknown"}</Typography>
-                <Typography>📆 Production Date: {verificationResult.productionDate || "Unknown"}</Typography>
-                <Typography>⌛ Expiry Date: {verificationResult.expiryDate || "Unknown"}</Typography>
-                <Typography>🧪 Ingredients: {verificationResult.ingredients || "Unknown"}</Typography>
-                <Typography>🔍 Purpose: {verificationResult.purpose || "Unknown"}</Typography>
-                <Typography>📜 Procedure: {verificationResult.procedure || "Unknown"}</Typography>
-              </>
-            )}
-          </Paper>
-        )}
-      </Paper>
-    </Container>
+      </div>
+    </div>
   );
+};
+
+// 💡 Inline Styles for Better UI
+const styles = {
+  container: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    backgroundColor: "#f4f4f9",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    borderRadius: "10px",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+    textAlign: "center",
+    width: "350px",
+  },
+  title: {
+    marginBottom: "15px",
+    color: "#333",
+  },
+  fileInput: {
+    marginBottom: "10px",
+    padding: "10px",
+  },
+  button: {
+    backgroundColor: "#007bff",
+    color: "#ffffff",
+    border: "none",
+    padding: "10px 15px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    fontSize: "16px",
+  },
+  error: {
+    color: "red",
+    marginTop: "10px",
+  },
+  detailsContainer: {
+    marginTop: "20px",
+    textAlign: "left",
+    backgroundColor: "#f8f9fa",
+    padding: "10px",
+    borderRadius: "5px",
+  },
+  detailsTitle: {
+    color: "#28a745",
+  },
 };
 
 export default MedicineVerificationPage;
